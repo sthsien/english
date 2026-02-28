@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>五權國小英語單字學習網站</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+            --bg: #f3f4f6;
+            --text: #1f2937;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* 標題區優化 */
+        .header { 
+            text-align: center; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 40px 20px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 { 
+            margin: 0; 
+            font-size: 2.2em;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* 錯誤訊息 */
+        .error {
+            display: none;
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 2px solid #f87171;
+        }
+
+        /* 控制列優化 */
+        .controls { 
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        select, input { 
+            padding: 12px 20px; 
+            border-radius: 25px; 
+            border: 2px solid #e5e7eb; 
+            margin: 5px; 
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* 卡片陣列優化 */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 25px; 
+            padding: 0 20px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 單字卡片優化 */
+        .card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .word { 
+            font-size: 1.8em; 
+            color: var(--primary); 
+            font-weight: 800; 
+            margin: 0; 
+        }
+
+        .pos { 
+            color: #9ca3af; 
+            font-style: italic; 
+            font-size: 0.9em; 
+        }
+
+        .trans { 
+            font-size: 1.3em; 
+            margin: 0 0 15px 0; 
+            color: #374151;
+            font-weight: 600;
+        }
+
+        /* 例句區塊優化 */
+        .sentence-box {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--secondary);
+            flex-grow: 1;
+        }
+
+        .sentence-label {
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sentence-text {
+            margin: 0;
+            color: #4b5563;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        /* 按鈕優化 */
+        .btn-group { display: flex; gap: 10px; }
+
+        button { 
+            flex: 1; 
+            padding: 12px; 
+            cursor: pointer; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        button:hover { background: #4338ca; opacity: 0.9; }
+        button.secondary { background: var(--secondary); }
+        button.secondary:hover { background: #059669; }
+
+        /* 響應式調整 */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.6em; }
+            .grid { grid-template-columns: 1fr; }
+            .controls { padding: 10px; }
+            select, input { width: 90%; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🎒 五權國小英語單字學習網站</h1>
+</div>
+
+<div id="errMsg" class="error">⚠️ 找不到 data.js，請確保它跟網頁放在同一個資料夾中。</div>
+
+<div class="controls">
+    <select id="stageFilter" onchange="filterData()">
+        <option value="all">所有級別的單字</option>
+        <option value="Starter-A">Starter-A</option>
+        <option value="Starter-B">Starter-B</option>
+        <option value="Mover-A">Mover-A</option>
+        <option value="Mover-B">Mover-B</option>
+        <option value="Runner-A">Runner-A</option>
+        <option value="Runner-B">Runner-B</option>
+        <option value="Flyer-A">Flyer-A</option>
+        <option value="Flyer-B">Flyer-B</option>
+    </select>
+    <input type="text" id="searchInput" placeholder="搜尋單字或中文..." oninput="filterData()">
+</div>
+
+<div id="vocabGrid" class="grid"></div>
+
+<script src="data.js"></script>
+
+<script>
+    // 檢查 data.js 是否加載成功
+    if (typeof vocabData === 'undefined') {
+        document.getElementById('errMsg').style.display = 'block';
+    }
+
+    // 渲染卡片：按鈕已更改為中文「單字」與「聽例句」
+    function render(list) {
+        const grid = document.getElementById('vocabGrid');
+        grid.innerHTML = list.length ? '' : '<p style="text-align:center; width:100%; grid-column: 1/-1; padding: 50px; color: #666;">🔍 找不到相關單字，請換個關鍵字試試看</p>';
+        
+        list.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            const sentenceText = item.s || `How do you spell "${item.w}"?`;
+            
+            div.innerHTML = `
+                <div class="word-header">
+                    <p class="word">${item.w}</p>
+                    <span class="pos">${item.p || ''}</span>
+                </div>
+                <p class="trans">${item.t}</p>
+                
+                <div class="sentence-box">
+                    <span class="sentence-label">例句練習 Example Sentence</span>
+                    <p class="sentence-text">${sentenceText}</p>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="speak('${item.w.replace(/'/g, "\\'")}')">🔊 唸單字</button>
+                    <button class="secondary" onclick="speakWithPause('${item.w.replace(/'/g, "\\'")}', '${sentenceText.replace(/'/g, "\\'")}')">📢 聽例句</button>
+                </div>`;
+            grid.appendChild(div);
+        });
+    }
+
+    // 核心功能：單字 -> 停頓 -> 例句
+    function speakWithPause(word, sentence) {
+        window.speechSynthesis.cancel(); 
+
+        const msgWord = new SpeechSynthesisUtterance(word);
+        msgWord.lang = 'en-US';
+        msgWord.rate = 0.8; 
+
+        const msgSentence = new SpeechSynthesisUtterance(sentence);
+        msgSentence.lang = 'en-US';
+        msgSentence.rate = 0.70;
+
+        msgWord.onend = function() {
+            setTimeout(() => {
+                window.speechSynthesis.speak(msgSentence);
+            }, 1000); 
+        };
+
+        window.speechSynthesis.speak(msgWord);
+    }
+
+    // 單獨發音
+    function speak(text) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'en-US';
+        msg.rate = 0.70;
+        window.speechSynthesis.speak(msg);
+    }
+
+    // 過濾功能
+    function filterData() {
+        if (typeof vocabData === 'undefined') return;
+        const stage = document.getElementById('stageFilter').value;
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        
+        let data = (stage === 'all') ? Object.values(vocabData).flat() : vocabData[stage];
+        
+        if (!data) data = [];
+        
+        const filtered = data.filter(i => 
+            i.w.toLowerCase().includes(search) || 
+            i.t.includes(search)
+        );
+        
+        render(filtered);
+    }
+
+    window.onload = filterData;
+</script>
+
+</body>
+</html>
