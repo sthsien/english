@@ -253,34 +253,40 @@
     }
 
     // 核心功能：單字 -> 停頓 -> 例句
-    function speakWithPause(word, sentence) {
-        window.speechSynthesis.cancel(); 
+function speakWithPause(word, sentence) {
+    window.speechSynthesis.cancel(); 
 
-        const msgWord = new SpeechSynthesisUtterance(word);
-        msgWord.lang = 'en-US';
-        msgWord.rate = 0.8; 
+    // 技巧：將 word 中的點號去掉，避免 iOS 誤判語言
+    const cleanWord = word.replace(/\./g, '');
+    const cleanSentence = sentence.replace(/\.m\./gi, ' am ').replace(/\.p\./gi, ' pm ');
 
-        const msgSentence = new SpeechSynthesisUtterance(sentence);
-        msgSentence.lang = 'en-US';
-        msgSentence.rate = 0.70;
+    const msgWord = new SpeechSynthesisUtterance(cleanWord);
+    msgWord.lang = 'en-US';
+    msgWord.rate = 0.8; 
 
-        msgWord.onend = function() {
-            setTimeout(() => {
-                window.speechSynthesis.speak(msgSentence);
-            }, 1000); 
-        };
+    const msgSentence = new SpeechSynthesisUtterance(cleanSentence);
+    msgSentence.lang = 'en-US';
+    msgSentence.rate = 0.85;
 
-        window.speechSynthesis.speak(msgWord);
-    }
+    msgWord.onend = function() {
+        setTimeout(() => {
+            window.speechSynthesis.speak(msgSentence);
+        }, 1000); 
+    };
 
-    // 單獨發音
-    function speak(text) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-US';
-        msg.rate = 0.70;
-        window.speechSynthesis.speak(msg);
-    }
+    window.speechSynthesis.speak(msgWord);
+}
+
+// 單獨發音
+function speak(text) {
+    window.speechSynthesis.cancel();
+    // 技巧：處理縮寫點號問題
+    const cleanText = text.replace(/\./g, '');
+    const msg = new SpeechSynthesisUtterance(cleanText);
+    msg.lang = 'en-US';
+    msg.rate = 0.85;
+    window.speechSynthesis.speak(msg);
+}
 
     // 過濾功能
     function filterData() {
