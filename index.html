@@ -252,13 +252,26 @@
         });
     }
 
-    // 核心功能：單字 -> 停頓 -> 例句
+   // 數字轉英文的對照表，專門對付 iOS 的中文報數問題
+function numberToEnglish(text) {
+    const numMap = {
+        '0': 'zero', '1': 'one', '2': 'two', '3': 'three', '4': 'four',
+        '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine', '10': 'ten'
+    };
+    // 處理單獨出現的數字 0-10，並處理 a.m. / p.m.
+    return text.replace(/\b([0-9]|10)\b/g, (match) => numMap[match])
+               .replace(/\.m\./gi, ' am')
+               .replace(/\.p\./gi, ' pm')
+               .replace(/\./g, ''); // 移除剩下的點號
+}
+
+// 核心功能：單字 -> 停頓 -> 例句
 function speakWithPause(word, sentence) {
     window.speechSynthesis.cancel(); 
 
-    // 技巧：將 word 中的點號去掉，避免 iOS 誤判語言
-    const cleanWord = word.replace(/\./g, '');
-    const cleanSentence = sentence.replace(/\.m\./gi, ' am ').replace(/\.p\./gi, ' pm ');
+    // 先把數字和點號轉成純英文單字
+    const cleanWord = numberToEnglish(word);
+    const cleanSentence = numberToEnglish(sentence);
 
     const msgWord = new SpeechSynthesisUtterance(cleanWord);
     msgWord.lang = 'en-US';
@@ -280,8 +293,7 @@ function speakWithPause(word, sentence) {
 // 單獨發音
 function speak(text) {
     window.speechSynthesis.cancel();
-    // 技巧：處理縮寫點號問題
-    const cleanText = text.replace(/\./g, '');
+    const cleanText = numberToEnglish(text);
     const msg = new SpeechSynthesisUtterance(cleanText);
     msg.lang = 'en-US';
     msg.rate = 0.85;
@@ -310,4 +322,5 @@ function speak(text) {
 </script>
 
 </body>
+
 </html>
